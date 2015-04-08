@@ -1,0 +1,8 @@
+{
+	"dbhost": "127.0.0.1",
+	"dbname": "lakegod",
+	"dbuser": "SE_PROJECTisLakeGod!@",
+	"version": "prototype",
+	"port": "443",
+	"appname": "LakeGod"
+}
