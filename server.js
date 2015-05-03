@@ -1,7 +1,6 @@
 /* Module */
 
 var http = require('http');
-var mysql = require('mysql');
 
 var app = require('./app');
 var port = normalizePort(process.env.PORT || '443');
