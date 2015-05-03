@@ -2,6 +2,7 @@
 var express = require('express');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
+var connectMultiparty = require('connect-multiparty');
 
 /* require Router setting */
 var post = require('./routes/post');
@@ -9,6 +10,15 @@ var photo = require('./routes/photo');
 var user = require('./routes/user');
 
 var app = express();
+
+/**
+ * for post request
+ * body-parser => x-www-form-urlencoded
+ * connect-multiparty = > form-data
+ */
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use( bodyParser.json() );
+app.use(connectMultiparty());
 
 /* Set router  */
 app.use('/post', post);
