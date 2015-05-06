@@ -6,7 +6,7 @@ var post = require('../modules/post');
 /* Router setting */
 
 router.post('/addPost', post.addPost);
-router.get('/getPost/list/:pages', post.getPost.List);
+router.get('/getPost/list/:type/:pages', post.getPost.List);
 router.get('/getPost/id/:id', post.getPost.ByID);
 router.get('/getPost/title/:key/:type', post.getPost.ByTitle);
 router.get('/getPost/tag/:key/:type', post.getPost.ByTag);

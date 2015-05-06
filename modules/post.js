@@ -1,12 +1,27 @@
-var database = require('./database')
+var database = require('./database');
 
-var dataFilter = require('./data-filter')
+var dataFilter = require('./data-filter');
+
+var postHelper = require('./helper/postHelper');
 
 var getPost = {}
 
 getPost.List = function(req, res, next) {
+    var queryStatement = '';
+    var parameter = [];
     var pages = req.params.pages > 0 ? (req.params.pages - 1) * 20 : 0;
-    database.query('SELECT * FROM `post` ORDER BY `upload_time` LIMIT ?, 20;', pages, function(error, row, fields){
+
+    if (req.params.type === 'all') {
+        queryStatement = 'SELECT * FROM `post` ORDER BY `upload_time` LIMIT ?, 20;';
+        parameter.push(pages);
+    } else {
+        queryStatement = 'SELECT * FROM `post` WHERE `type` = ? ORDER BY `upload_time` LIMIT ?, 20;';
+        parameter.push(req.params.type);
+        parameter.push(pages);
+    }
+
+
+    database.query(queryStatement, parameter, function(error, row, fields) {
         if (error) {
             res.status(500).json({
                 status_messages: 'Internal error',
@@ -14,11 +29,11 @@ getPost.List = function(req, res, next) {
             });
             console.log('Error: getPost.List :' + error);
         }
-        if(row.length > 0) {
+        if (row.length > 0) {
             res.status(200).json({
-                status_messages: 'getPost API! page '+req.params.pages+' Access Success.',
+                status_messages: 'getPost API! page ' + req.params.pages + ' Access Success.',
                 status_code: 200,
-                data: row
+                data: postHelper.timezoneConvert(row)
             });
         } else {
             res.status(404).json({
@@ -42,7 +57,7 @@ getPost.ByID = function(req, res, next) {
             res.status(200).json({
                 status_messages: 'getPost API By id! Access Success.',
                 status_code: 200,
-                data: row[0]
+                data: postHelper.timezoneConvert(row)[0]
             });
         } else {
             res.status(404).json({
@@ -77,7 +92,7 @@ getPost.ByTitle = function(req, res, next) {
             res.status(200).json({
                 status_messages: 'getPost API by Title! Access Success',
                 status_code: 200,
-                data: row
+                data: postHelper.timezoneConvert(row)
             });
         } else {
             res.status(404).json({
@@ -111,7 +126,7 @@ getPost.ByTag = function(req, res, next) {
             res.status(200).json({
                 status_messages: 'getPost API by Tag! Access Success',
                 status_code: 200,
-                data: row
+                data: postHelper.timezoneConvert(row)
             });
         } else {
             res.status(404).json({
@@ -145,7 +160,7 @@ getPost.ByUser = function(req, res, next) {
             res.status(200).json({
                 status_messages: 'getPost API by User! Access Success',
                 status_code: 200,
-                data: row
+                data: postHelper.timezoneConvert(row)
             });
         } else {
             res.status(404).json({
@@ -208,10 +223,6 @@ var addPost = function(req, res, next) {
             });
         }
     });
-
-
-
-
 };
 
 var deletePost = function(req, res, next) {
