@@ -6,18 +6,22 @@ var postHelper = require('./helper/postHelper');
 
 var getPost = {}
 
+var appConfig = require('../appConfig.json')
+
 getPost.List = function(req, res, next) {
     var queryStatement = '';
     var parameter = [];
-    var pages = req.params.pages > 0 ? (req.params.pages - 1) * 20 : 0;
+    var pages = req.params.pages > 0 ? (req.params.pages - 1) * config.post.postNumOfList : 0;
 
-    if (req.params.type === 'all') {
-        queryStatement = 'SELECT * FROM `post` ORDER BY `upload_time` LIMIT ?, 20;';
+    if (req.params.type.toLowerCase() === 'all') {
+        queryStatement = 'SELECT * FROM `post` ORDER BY `upload_time` LIMIT ?, ?;';
         parameter.push(pages);
+        parameter.push(config.post.postNumOfList);
     } else {
-        queryStatement = 'SELECT * FROM `post` WHERE `type` = ? ORDER BY `upload_time` LIMIT ?, 20;';
+        queryStatement = 'SELECT * FROM `post` WHERE `type` = ? ORDER BY `upload_time` LIMIT ?, ?;';
         parameter.push(req.params.type);
         parameter.push(pages);
+        parameter.push(config.post.postNumOfList);
     }
 
 
@@ -71,13 +75,14 @@ getPost.ByID = function(req, res, next) {
 
 getPost.ByTitle = function(req, res, next) {
     var queryStatement = '';
-    var parameter = '';
+    var parameter = [];
     if (req.params.type === 'all') {
         queryStatement = 'SELECT * FROM `post` WHERE `title` LIKE ?;';
-        parameter = '%' + req.params.key + '%';
+        parameter.push('%' + req.params.key + '%');
     } else {
         queryStatement = 'SELECT * FROM `post` WHERE `title` LIKE ? AND `type` = ?;';
-        parameter = new Array('%' + req.params.key + '%', req.params.type);
+        parameter.push('%' + req.params.key + '%')
+        parameter.push(req.params.type);
     }
 
     database.query(queryStatement, parameter, function(error, row, fields) {
@@ -178,6 +183,7 @@ var addPost = function(req, res, next) {
     var data = req.body;
 
     /* 驗證FB token是否合法 */
+    var token = data['fb_token'];
 
     /* 驗證FB_id是否已註冊 */
     var userHelper = require('./helper/userHelper');
@@ -201,7 +207,7 @@ var addPost = function(req, res, next) {
             parameter.push(dataFilter(data['type']));
             parameter.push(dataFilter(data['location']));
             parameter.push(dataFilter(data['map_lat']));
-            parameter.push(dataFilter(data['map_lng']));
+            parameter.push(dataFilter(data['map_log']));
             parameter.push(dataFilter(data['occure_time']));
 
             var queryStatement = 'INSERT INTO `post`(`title`, `tag`, `description`, `photos`, `author_id`, `author_name`, `type`, `location`, `map_lat`, `map_lng`, `occure_time`) VALUE( ? , ? , ? , ? , ? , ? , ? , ? , ? , ?, ? );';
