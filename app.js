@@ -3,6 +3,7 @@ var express = require('express');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
 var connectMultiparty = require('connect-multiparty');
+var multer = require('multer');
 
 /* require Router setting */
 var post = require('./routes/post');
@@ -19,6 +20,13 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
 app.use(connectMultiparty());
+
+/**
+ * for file upload
+ */
+app.use(multer({
+	dest: './upload'
+}));
 
 /* Set router  */
 app.use('/post', post);
