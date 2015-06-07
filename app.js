@@ -2,6 +2,7 @@
 var express = require('express');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
+var connectMultiparty = require('connect-multiparty');
 var multer = require('./modules/multer');
 
 /* require Router setting */
@@ -15,14 +16,11 @@ var app = express();
 /**
  * for post request
  * body-parser => x-www-form-urlencoded
- *  
+ * connect-multiparty = > form-data
  */
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
-/**
- * for file upload & form-data 
- */
-app.use(multer);
+app.use(connectMultiparty());
 
 /* Set router  */
 app.use('/post', post);
