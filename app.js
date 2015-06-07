@@ -24,7 +24,7 @@ app.use(connectMultiparty());
 
 /* Set router  */
 app.use('/post', post);
-app.use('/photo', photo);
+app.use('/photo', fileUpload.photo, photo);
 app.use('/user', user);
 
 
