@@ -20,7 +20,7 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
 /**
- * for file upload
+ * for file upload & form-data 
  */
 app.use(multer);
 
