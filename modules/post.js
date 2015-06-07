@@ -179,7 +179,36 @@ getPost.ByUser = function(req, res, next) {
 
 
 getPost.ByLocation = function (req, res, next) {
-    
+    var queryStatement = '';
+    var parameter = '';
+    if (req.params.type === 'all') {
+        queryStatement = 'SELECT * FROM `post` WHERE `location` LIKE ? ;';
+        parameter = new Array('%' + req.params.key + '%');
+    } else {
+        queryStatement = 'SELECT * FROM `post` WHERE `location` LIKE ? AND `type` = ?;';
+        parameter = new Array('%' + req.params.key + '%', req.params.type);
+    }
+    database.query(queryStatement, parameter, function(error, row, fields) {
+        if (error) {
+            res.status(500).json({
+                status_messages: 'Internal error',
+                status_code: 500
+            });
+            console.log('Error: getPost.Bylocation :' + error);
+        }
+        if (row.length > 0) {
+            res.status(200).json({
+                status_messages: 'getPost API by location! Access Success',
+                status_code: 200,
+                data: postHelper.timezoneConvert(row)
+            });
+        } else {
+            res.status(404).json({
+                status_messages: 'getPost Api by location! Not found',
+                status_code: 404
+            })
+        }
+    });    
 }
 
 var addPost = function(req, res, next) {
