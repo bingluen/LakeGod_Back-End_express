@@ -177,6 +177,11 @@ getPost.ByUser = function(req, res, next) {
 
 }
 
+
+getPost.ByLocation = function (req, res, next) {
+    
+}
+
 var addPost = function(req, res, next) {
 
     /* 準備 資料 */
@@ -231,19 +236,7 @@ var addPost = function(req, res, next) {
     });
 };
 
-var deletePost = function(req, res, next) {
-    res.status(200).json({
-        message: 'deletePost API!'
-    });
-};
-
-var updatePost = function(req, res, next) {
-    res.status(200).json({
-        message: 'updatePost API!'
-    });
-};
 
 module.exports.getPost = getPost;
 module.exports.addPost = addPost;
-module.exports.deletePost = deletePost;
-module.exports.updatePost = updatePost;
+
