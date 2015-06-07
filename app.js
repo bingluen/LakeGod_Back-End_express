@@ -3,7 +3,7 @@ var express = require('express');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
 var connectMultiparty = require('connect-multiparty');
-var multer = require('./modules/multer');
+var fileUpload = require('./modules/fileUpload');
 
 /* require Router setting */
 var post = require('./routes/post');
