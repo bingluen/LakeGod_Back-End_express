@@ -3,7 +3,6 @@ var express = require('express');
 var favicon = require('serve-favicon');
 var bodyParser = require('body-parser');
 var connectMultiparty = require('connect-multiparty');
-var fileUpload = require('./modules/fileUpload');
 
 /* require Router setting */
 var post = require('./routes/post');
@@ -20,12 +19,10 @@ var app = express();
  */
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
-app.use(connectMultiparty());
-
 /* Set router  */
-app.use('/post', post);
-app.use('/photo', fileUpload.photo, photo);
-app.use('/user', user);
+app.use('/post',connectMultiparty(), post);
+app.use('/photo', photo);
+app.use('/user',connectMultiparty(), user);
 
 
 // catch 404 and forward to error handler
