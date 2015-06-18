@@ -2,5 +2,7 @@
 	"dbhost": "",
 	"dbname": "",
 	"username": "",
-	"password": ""
+	"password": "",
+	"timezone": "Asia/Taipei",
+	"fbappid": 
 }
