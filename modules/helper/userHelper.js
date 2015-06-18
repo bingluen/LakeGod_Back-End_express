@@ -10,7 +10,7 @@ var getUserName = function(userid, next) {
             console.log('ERROR: userHelper.getUserName:' + error);
         }
         if (row.length == 1)
-            next(row[0].name);
+            next(row[0].name, userid);
         else
             next(undefined);
     });
