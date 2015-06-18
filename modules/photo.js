@@ -6,6 +6,8 @@ var md5 = require('MD5');
 var dataFilter = require('./data-filter');
 var path = require('path');
 
+var facebook = require('./facebook')
+
 var getPhoto = function(req, res, next) {
     var queryStatment = 'SELECT * FROM `photo` WHERE `id` = ?;';
     var parameter = [];
@@ -25,10 +27,9 @@ var getPhoto = function(req, res, next) {
         }
     });
 
-}
+};
 
 uploadPhoto = function(req, res, next) {
-    var resMessages;
     var processUpload = multer({
         dest: './fileUpload',
         rename: function(fieldname, filename) {
@@ -104,8 +105,12 @@ uploadPhoto = function(req, res, next) {
         onParseEnd: function(req, next) {
         }.bind(this)
     });
-    processUpload(req, res, next);
-}
+
+    facebook({
+        fbtoken: req.body.fb_token,
+        LoginCallback: processUpload(req, res, next)
+    });
+};
 
 module.exports.getPhoto = getPhoto;
 module.exports.uploadPhoto = uploadPhoto;
