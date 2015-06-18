@@ -1,26 +1,55 @@
 var database = require('./database');
 var https = require('https');
 var config = require('../config.json');
-var facebookConfig = {
-    appid: config.fbappid,
-    graphAPI: {
-        app: 'https://graph.facebook.com/app',
-        me: 'https://graph.faceboom.com/me'
-    },
-    fields: 'id,name,email'
 
-}
+var facebook = function(option) {
+    this.option = option || {};
+    if (!option.fbtoken) {
+        throw err;
+    }
 
-var login = function(fbtoken, callback) {
-    this.Check(fbtoken, this.Login);
-    this.Login = function(body) {
-        Download(facebookConfig.graphAPI.me + '?fields=' + facebookConfig.fields + '&access_token=' + fbtoken, function(body) {
+    config = {
+        appid: config.fbappid,
+        graphAPI: {
+            app: 'https://graph.facebook.com/app',
+            me: 'https://graph.facebook.com/me'
+        },
+        fields: 'id,name,email'
+    }
+
+    this.Check = function() {
+        callback = option.CheckCallback || Login;
+        fbtoken = option.fbtoken;
+        Download(config.graphAPI.app + '?fields=id&&access_token' + fbtoken, function(body) {
             if (body.error)
                 callback({
-                    facebookMessage: body,
+                    error: body.error,
                     vaild: false
                 });
+            else if (body.id != facebookConfig.appid)
+                callback({
+                    error: 'app id error',
+                    vaild: false
+                });
+            else
+                callback({
+                    vaild: true,
+                    data: body
+                });
+        });
+    }
 
+    this.Login = function(body) {
+        callback = option.LoginCallback || function(body) {
+            return body
+        };
+        fbtoken = option.fbtoken;
+        Download(config.graphAPI.me + '?fields=' + config.fields + '&access_token=' + fbtoken, function(body) {
+            if (body.error)
+                callback({
+                    error: body.error,
+                    vaild: false
+                });
             else
                 callback({
                     data: body,
@@ -28,28 +57,9 @@ var login = function(fbtoken, callback) {
                 });
         });
     }
-}
 
-login.Check = function(fbtoken, callback) {
-    callback = callback || this.Login
-    Download(facebookConfig.graphAPI.app + '?field=id&access_token=' + fbtoken, function(body) {
-        if (body.error)
-            callback({
-                facebookMessage: body,
-                vaild: false
-            });
-        else if (body.id != facebookConfig.appid)
-            callback({
-                error: 'app id error',
-                vaild: false
-            });
-        else
-            callback({
-                vaild: true,
-                data: body
-            });
-    });
-}
+    Check();
+};
 
 var Download = function(url, callback) {
     var strproto = url.substring(0, url.indexOf('://'))
@@ -74,7 +84,4 @@ var Download = function(url, callback) {
     });
 }
 
-module.exports = {
-    Login: login,
-    Check: login.Check
-}
+module.exports = facebook;
