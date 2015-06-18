@@ -14,7 +14,6 @@ getPost.List = function(req, res, next) {
     var pages = req.params.pages > 0 ? (req.params.pages - 1) * appConfig.post.postNumOfList : 0;
 
     if (req.params.type.toLowerCase() === 'all') {
-        //
         queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM `post` ORDER BY `upload_time` LIMIT ?, ?) result, user Where result.author_id = user.id;';
         parameter.push(pages);
         parameter.push(appConfig.post.postNumOfList);
@@ -24,7 +23,6 @@ getPost.List = function(req, res, next) {
         parameter.push(pages);
         parameter.push(appConfig.post.postNumOfList);
     }
-
 
     database.query(queryStatement, parameter, function(error, row, fields) {
         if (error) {
@@ -82,7 +80,7 @@ getPost.ByTitle = function(req, res, next) {
         queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM `post` WHERE `title` LIKE ?) result, user Where result.author_id = user.id;';
         parameter.push('%' + req.params.key + '%');
     } else {
-        queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM `post` WHERE `title` LIKE ? AND `type` = ?;) result, user Where result.author_id = user.id;';
+        queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM `post` WHERE `title` LIKE ? AND `type` = ?) result, user Where result.author_id = user.id;';
         parameter.push('%' + req.params.key + '%')
         parameter.push(req.params.type);
     }
