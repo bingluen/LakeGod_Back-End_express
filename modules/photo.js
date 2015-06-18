@@ -37,28 +37,21 @@ uploadPhoto = function(req, res, next) {
         },
         onFileUploadStart: function(file, req, res) {},
         onFileUploadComplete: function(file, req, res) {
-            /* 檢查有沒有重複檔案 */
-            var fileContent = fs.readFileSync(file.path);
-            var fileMd5 = md5(fileContent)
-            var queryStatment = 'SELECT `path` FROM `photo` WHERE `md5_hash` = ? LIMIT 1;';
-            var parameter = new Array(fileMd5);
-            database.query(queryStatment, parameter, function(err, row, field) {
-                if (err) {
-                    /* 出錯，把暫存檔案刪掉 */
-                    fse.removeSync(file.path);
-                    res.status(500).json({
-                        status_messages: 'Internal error',
-                        status_code: 500
+            /* checkFacebookToken */
+            var afterCheckFb = function(body) {
+                if (!body.vaild) {
+                    res.status(412).json({
+                        status_messages: 'facebook token fail.',
+                        status_code: 412
                     });
-                    console.log("Error: check photo duplicate - " + err);
-                }
-                /* 有重複，檔案刪掉，直接以現有檔案路徑插入資料庫 */
-                else if (row.length == 1) {
-                    /* 刪除 */
+                    /* token不合法，把暫存檔案刪掉 */
                     fse.removeSync(file.path);
-                    /* 插入資料 */
-                    queryStatment = 'INSERT INTO `photo` (`author_id`, `md5_hash`, `path`) VALUES(?, ?, ?);';
-                    parameter = new Array(dataFilter(req.body.fb_user_id), fileMd5, row[0].path);
+                } else {
+                    /* 檢查有沒有重複檔案 */
+                    var fileContent = fs.readFileSync(file.path);
+                    var fileMd5 = md5(fileContent)
+                    var queryStatment = 'SELECT `path` FROM `photo` WHERE `md5_hash` = ? LIMIT 1;';
+                    var parameter = new Array(fileMd5);
                     database.query(queryStatment, parameter, function(err, row, field) {
                         if (err) {
                             /* 出錯，把暫存檔案刪掉 */
@@ -67,49 +60,67 @@ uploadPhoto = function(req, res, next) {
                                 status_messages: 'Internal error',
                                 status_code: 500
                             });
-                            console.log("Error: insert photo data - " + err);
-                        } else {
-                            res.status(200).json({
-                                status_code: 200,
-                                status_messages: 'upload successful!',
-                                photo_id: row.insertId
-                            });
+                            console.log("Error: check photo duplicate - " + err);
                         }
-                    });
-                }
-                /* New File */
-                else if (row.length <= 0) {
-                    /* 插入資料 */
-                    queryStatment = 'INSERT INTO `photo` (`author_id`, `md5_hash`, `path`) VALUES(?, ?, ?);';
-                    parameter = new Array(dataFilter(req.body.fb_user_id), fileMd5, file.path);
-                    database.query(queryStatment, parameter, function(err, row, field) {
-                        if (err) {
-                            /* 出錯，把暫存檔案刪掉 */
+                        /* 有重複，檔案刪掉，直接以現有檔案路徑插入資料庫 */
+                        else if (row.length == 1) {
+                            /* 刪除 */
                             fse.removeSync(file.path);
-                            res.status(500).json({
-                                status_messages: 'Internal error',
-                                status_code: 500
+                            /* 插入資料 */
+                            queryStatment = 'INSERT INTO `photo` (`author_id`, `md5_hash`, `path`) VALUES(?, ?, ?);';
+                            parameter = new Array(body.data.id, fileMd5, row[0].path);
+                            database.query(queryStatment, parameter, function(err, row, field) {
+                                if (err) {
+                                    /* 出錯，把暫存檔案刪掉 */
+                                    fse.removeSync(file.path);
+                                    res.status(500).json({
+                                        status_messages: 'Internal error',
+                                        status_code: 500
+                                    });
+                                    console.log("Error: insert photo data - " + err);
+                                } else {
+                                    res.status(200).json({
+                                        status_code: 200,
+                                        status_messages: 'upload successful!',
+                                        photo_id: row.insertId
+                                    });
+                                }
                             });
-                            console.log("Error: insert photo data - " + err);
-                        } else {
-                            res.status(200).json({
-                                status_code: 200,
-                                status_messages: 'upload successful!',
-                                photo_id: row.insertId
+                        }
+                        /* New File */
+                        else if (row.length <= 0) {
+                            /* 插入資料 */
+                            queryStatment = 'INSERT INTO `photo` (`author_id`, `md5_hash`, `path`) VALUES(?, ?, ?);';
+                            parameter = new Array(body.data.id, fileMd5, file.path);
+                            database.query(queryStatment, parameter, function(err, row, field) {
+                                if (err) {
+                                    /* 出錯，把暫存檔案刪掉 */
+                                    fse.removeSync(file.path);
+                                    res.status(500).json({
+                                        status_messages: 'Internal error',
+                                        status_code: 500
+                                    });
+                                    console.log("Error: insert photo data - " + err);
+                                } else {
+                                    res.status(200).json({
+                                        status_code: 200,
+                                        status_messages: 'upload successful!',
+                                        photo_id: row.insertId
+                                    });
+                                }
                             });
                         }
                     });
                 }
-            });
+            }.bind(this);
+            facebook({
+                fbtoken: req.body.fb_token,
+                LoginCallback: afterCheckFb
+            })
         },
-        onParseEnd: function(req, next) {
-        }.bind(this)
+        onParseEnd: function(req, next) {}.bind(this)
     });
-
-    facebook({
-        fbtoken: req.body.fb_token,
-        LoginCallback: processUpload(req, res, next)
-    });
+    processUpload(req, res, next)
 };
 
 module.exports.getPhoto = getPhoto;
