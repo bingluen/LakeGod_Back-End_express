@@ -250,7 +250,7 @@ var addPost = function(req, res, next) {
             parameter.push(dataFilter(data['tag']));
             parameter.push(dataFilter(data['description']));
             parameter.push(dataFilter(data['photos']));
-            parameter.push(dataFilter(data['fb_user_id']));
+            parameter.push(user_id);
             parameter.push(dataFilter(data['type']));
             parameter.push(dataFilter(data['location']));
             parameter.push(dataFilter(data['map_lat']));
