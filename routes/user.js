@@ -5,7 +5,7 @@ var user = require('../modules/user');
 
 /* Router setting */
 
-router.get('/login', user.login);
-router.get('/myPost', user.myPost);
+router.get('/login/:fbtoken', user.login);
+router.get('/myPost/:fbtoken', user.myPost);
 
 module.exports = router;
