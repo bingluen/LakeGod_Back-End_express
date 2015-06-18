@@ -31,8 +31,7 @@ getPost.List = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.List :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API! page ' + req.params.pages + ' Access Success.',
                 status_code: 200,
@@ -56,8 +55,7 @@ getPost.ByID = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.ByID :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API By id! Access Success.',
                 status_code: 200,
@@ -92,8 +90,7 @@ getPost.ByTitle = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.ByTitle :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API by Title! Access Success',
                 status_code: 200,
@@ -126,8 +123,7 @@ getPost.ByTag = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.ByTag :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API by Tag! Access Success',
                 status_code: 200,
@@ -160,8 +156,7 @@ getPost.ByUser = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.ByUser :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API by User! Access Success',
                 status_code: 200,
@@ -195,8 +190,7 @@ getPost.ByLocation = function(req, res, next) {
                 status_code: 500
             });
             console.log('Error: getPost.Bylocation :' + error);
-        }
-        if (row.length > 0) {
+        } else if (row.length > 0) {
             res.status(200).json({
                 status_messages: 'getPost API by location! Access Success',
                 status_code: 200,
