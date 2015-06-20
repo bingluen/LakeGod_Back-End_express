@@ -9,7 +9,6 @@ var post = require('./routes/post');
 var photo = require('./routes/photo');
 var user = require('./routes/user');
 
-
 var app = express();
 
 /**
@@ -23,6 +22,7 @@ app.use( bodyParser.json() );
 app.use('/post',connectMultiparty(), post);
 app.use('/photo', photo);
 app.use('/user',connectMultiparty(), user);
+app.use('/', express.static(__dirname + '/public'));
 
 
 // catch 404 and forward to error handler
@@ -34,5 +34,6 @@ app.use(function(req, res, next) {
     	messages: "404 Not Found"
     });
 });
+
 
 module.exports = app;
