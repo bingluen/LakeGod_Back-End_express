@@ -5,7 +5,7 @@ var config = require('../config.json');
 var facebook = function(option) {
     this.option = option || {};
     if (!option.fbtoken) {
-        throw err;
+        throw "fbtoken is null";
     }
 
     config = {
