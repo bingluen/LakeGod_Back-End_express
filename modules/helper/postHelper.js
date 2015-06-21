@@ -23,6 +23,15 @@ var timezoneConvert = function(rows) {
     for (var i = 0; i < rows.length; i++) {
     	rows[i]['occure_time'] = moment(rows[i]['occure_time']).tz(config.timezone).format();
     	rows[i]['upload_time'] = moment(rows[i]['upload_time']).tz(config.timezone).format();
+        //photo id join path
+        rows[i]['photos'] = rows[i]['photos'].split(',');
+        console.log(rows[i]['photos']); 
+        for(var j = 0; j < rows[i]['photos'].length; j++)
+        {
+            rows[i]['photos'][j] = 'photo/getPhoto/'+rows[i]['photos'][j];
+        }
+        rows[i]['photos'] = rows[i]['photos'].toString();
+        console.log(rows[i]['photos']); 
     }
     return rows;
 }
