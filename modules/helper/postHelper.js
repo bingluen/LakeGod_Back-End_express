@@ -25,13 +25,11 @@ var timezoneConvert = function(rows) {
     	rows[i]['upload_time'] = moment(rows[i]['upload_time']).tz(config.timezone).format();
         //photo id join path
         rows[i]['photos'] = rows[i]['photos'].split(',');
-        console.log(rows[i]['photos']); 
         for(var j = 0; j < rows[i]['photos'].length; j++)
         {
             rows[i]['photos'][j] = 'photo/getPhoto/'+rows[i]['photos'][j];
         }
         rows[i]['photos'] = rows[i]['photos'].toString();
-        console.log(rows[i]['photos']); 
     }
     return rows;
 }
