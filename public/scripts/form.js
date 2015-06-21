@@ -52,6 +52,53 @@ var Photo = React.createClass({
 
 var PhotoPreviewer = React.createClass({
 
+	componentDidMount: function() {
+
+		var timer = setInterval(function() {
+
+			if(this.props.fbToken) {
+				this.initUploadFile();
+				clearInterval(timer);
+			}
+		}.bind(this), 100);
+	},
+
+	initUploadFile: function() {
+
+		console.log(this.props.fbToken);
+
+		$('#uploadPhoto').fileupload({
+
+	        type: 'POST',
+	        url: '/photo/uploadPhoto',
+	        formData: {fb_token: this.props.fbToken},
+
+	        progress: function(e, data) {
+	        	console.log('progress');
+	        	var progress = parseInt(data.loaded / data.total * 100, 10);
+		        $('#progress .bar').css(
+		            'width',
+		            progress + '%'
+		        );
+	        },
+
+	        add: function(e, data) {
+	        	console.log('add');
+	        	data.submit();
+	        },
+
+	        done: function(e, data) {
+	        	console.log('done');
+	        	console.log(data.result);
+	        	this.props.addPhotoID(data.result.photo_id);
+	        	$('#progress .bar').css(
+		            'width',
+		            0 + '%'
+		        );
+	        }.bind(this)
+	    });
+	},
+
 	handleChange: function(e) {
 
 		// pointer to PhotoPreviewer(the React class object)
@@ -62,7 +109,7 @@ var PhotoPreviewer = React.createClass({
 	
 		reader.onload = function(e) {
 
-             this.props.addPhoto(e.target.result);
+			this.props.addPhoto(e.target.result);
 
         }.bind(this);
 
@@ -81,7 +128,7 @@ var PhotoPreviewer = React.createClass({
 			<div className="photo-previewer">
 				<div className="ui icon button">
 					<i className="photo large icon"></i>
-				  	<input type="file" onChange={this.handleChange} />
+				  	<input id="uploadPhoto" type="file" onChange={this.handleChange} />
 				</div>
 				{photos}
 			</div>
@@ -90,6 +137,10 @@ var PhotoPreviewer = React.createClass({
 });
 
 var PostForm = React.createClass({
+
+	componentDidMount: function() {
+		$('.ui.form.postform').hide();
+	},
 
 	// refresh tag input text 
 	handleTagInputChange: function(e) {
@@ -119,13 +170,53 @@ var PostForm = React.createClass({
 		});
 	},
 
+	// for preview photo data url
 	addPhoto: function(src) {
 		
 		this.setState({
 			photo: this.state.photos.push({url: src})
 		});
+	},
 
-		console.log(this.state.photos);
+	// for uploaded photo id
+	addPhotoID: function(id) {
+
+		this.setState({
+			photoID: this.state.photoIDs.push(id)
+		});
+
+		console.log(this.state.photoIDs);
+	},
+
+	tagsToString: function(tags) {
+
+		var str = '';
+
+		for (var i = 0 ; i < tags.length ; i++) {
+
+			if (i == tags.length - 1)
+				str += (tags[i].name);
+			else
+				str += (tags[i].name + ',');
+		}
+
+		return str;
+	},
+
+	photoIDsToString: function(photoIDs) {
+
+		var str = '';
+
+		for (var i = 0 ; i < photoIDs.length ; i++) {
+
+			if (i == photoIDs.length - 1)
+				str += (photoIDs[i]);
+			else
+				str += (photoIDs[i] + ',');
+		}
+
+		return str;
+
 	},
 
 	handleSubmit: function() {
@@ -135,7 +226,15 @@ var PostForm = React.createClass({
 		var occureTime = this.refs.occureTime.getDOMNode().value;
 		var location = this.refs.location.getDOMNode().value;
 		var description = this.refs.description.getDOMNode().value;
-		var tag = this.state.tags;
+		var tag = this.tagsToString(this.state.tags);
+		var photoIDs = this.photoIDsToString(this.state.photoIDs);
+		var type = this.props.type;
+		var fb_token = this.props.fbToken;
+
+		if (!fb_token) {
+			console.log('Please login to facebook first.');
+			return;
+		}
 
 		// change input error style
 		if (!title) {
@@ -155,7 +254,33 @@ var PostForm = React.createClass({
 			isValid = false;
 		} else this.setState({locationInputClass: 'required field'});
 
-		// TODO : add post to database
+		// add post to database
+		if (isValid) {
+
+			var url = '/post/addPost';
+
+			var data = {
+				title: title,
+				tag: tag,
+				description: description,
+				photos : photoIDs,
+				type: type,
+				location: location,
+				map_lat: 0,
+				map_log: 0,
+				occure_time: occureTime,
+				fb_token: fb_token
+			};
+
+			console.log('data to upload:');
+			console.log(data);
+
+			$.post(url, data, function(data) {
+				console.log('upload success, returned data:');
+				console.log(data);
+				$('.ui.form.postform').slideUp();
+			});
+		}
 	},
 
 	getInitialState: function() {
@@ -164,13 +289,9 @@ var PostForm = React.createClass({
 			occureTimeInputClass: 'required field',
 			locationInputClass: 'required field',
 			tags: [],
-			photos: []
+			photos: [],
+			photoIDs: []
 		};
-	},
-
-	// when Form component is ready, it is initailly hidden
-	componentDidMount: function() {
-		$('.ui.form.postform').hide();
 	},
 
 	render: function() {
@@ -216,8 +337,11 @@ var PostForm = React.createClass({
 			    </div>
 			    <TagGroup data={this.state.tags} onClick={this.removeTag}/>
 			    <div className="field">
+			    	<div id="progress">
+    					<div className="bar"></div>
+					</div>
 			    	<label>新增物品照片</label>
-			    	<PhotoPreviewer data={this.state.photos} addPhoto={this.addPhoto}/>
+			    	<PhotoPreviewer fbToken={this.props.fbToken} data={this.state.photos} addPhoto={this.addPhoto} addPhotoID={this.addPhotoID} />
 			    </div>
 			    <div className="field">
 				  	<label>描述文字</label>

@@ -23,7 +23,7 @@ var MyButton = React.createClass({
 			    <i className="dropdown icon"></i>
 			    <span className="text">我</span>
 			    <div className="right menu">
-			    	<div className="item">
+			    	<div className="item" onClick={this.props.onMyPost}>
 			        	我的貼文
 			    	</div>
 			    	<div className="item" onClick={this.props.onLogout}>
@@ -64,6 +64,7 @@ var Navbar = React.createClass({
 			//
 			// These three cases are handled in the callback function.
 			FB.getLoginStatus(this.statusChangeCallback);
+
 		}.bind(this);
 
 		// Load the SDK asynchronously
@@ -91,12 +92,13 @@ var Navbar = React.createClass({
 
 		console.log(res);
 
-		var url = '54.169.158.27:3348/user/login/' + res.authResponse.accessToken;
+		var url = '/user/login/' + res.authResponse.accessToken;
 
 		$.get(url, function(data, status) {
 			console.log(status);
-			this.setState({signedIn: true}); // Set the button state
 		});
+
+		this.props.saveFbToken(res.authResponse.accessToken);
 	},
 
 	// This is called with the results from from FB.getLoginStatus(), FB.login(), FB.logout().
@@ -111,6 +113,7 @@ var Navbar = React.createClass({
 			// Logged into your app and Facebook.
 			this.getFacebookUserData();
 			this.userLogin(response);
+			this.setState({signedIn: true}); // Set the button state
 
 		} else if (response.status === 'not_authorized') {
 			// The person is logged into Facebook, but not your app.
@@ -132,6 +135,10 @@ var Navbar = React.createClass({
 		FB.logout(this.statusChangeCallback);
 	},
 
+	handleMyPost: function() {
+		this.props.onMyPost();
+	},
+
 	getInitialState: function() {
 		return {
 			signedIn: false
@@ -142,12 +149,12 @@ var Navbar = React.createClass({
 
 		var title = '湖水女神';
 		var button = (!this.state.signedIn) ? <LoginButton onLogin={this.handleLogin}/> 
-					: <MyButton onLogout={this.handleLogout}/>;
+					: <MyButton onMyPost={this.handleMyPost} onLogout={this.handleLogout}/>;
 
 		return (
 			<div>
 				<div className="ui large inverted menu navbar">
-					<a className="item">{title}</a>
+					<a className="item" onClick={this.props.onReloadPage}>{title}</a>
 					<div className="item right aligned">
 						{button}
 					</div>

@@ -2,7 +2,7 @@ var Dropdown = React.createClass({
 
 	componentDidMount: function() {
 		$('.ui.dropdown.' + this.props.filter).dropdown({
-			onChange: this.props.onFilterChange
+			onChange: this.props.onFilterChange,
 		});
 	},
 
@@ -17,7 +17,7 @@ var Dropdown = React.createClass({
 		});
 
 		return (
-			<div className={'ui floating labeled icon dropdown button ' + this.props.filter}>
+			<div className={'ui dropdown floating labeled icon button ' + this.props.filter}>
 			    <i className={'icon ' + this.props.icon}></i>
 			    <span className="text">Filter by {this.props.filter}</span>
 			    <div className="menu">
@@ -62,6 +62,9 @@ var Filters = React.createClass({
 
 	// when type dropdown on change, we set type value
 	handleTypeFilterChange: function(val) {
+
+		console.log(val);
+
 		this.setState({type: val});
 	},
 

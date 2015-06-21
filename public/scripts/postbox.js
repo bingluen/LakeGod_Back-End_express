@@ -93,19 +93,61 @@ var Carousel = React.createClass({
 	}
 });
 
+var Tag = React.createClass({
+
+	render: function() {
+
+		return (
+			<a className="ui green label">
+			    {this.props.name}
+			</a>
+		);
+	}
+});
+
+var TagGroup = React.createClass({
+
+	handleClick: function(index) {
+		this.props.onClick(index);
+	},
+
+	render: function() {
+
+		var tags = this.props.data.map(function(tag, index) {
+			return (
+				<Tag name={tag.name} key={index} index={index} />
+			);
+		}, this);
+
+		return (
+			<div className="ui tag labels" style={{marginTop:5}}>
+				{tags}
+			</div>
+		);
+	}
+});
+
 var Content = React.createClass({
 	render: function() {
 		return (
-			<div className="content">
-		        <div><span className="title">{this.props.title}</span></div>
-			    <div><span className="date">{this.props.uploadTime}</span></div>
-			    <div><span className="description"> {this.props.location}</span></div>
-		  	</div>
+
+				<div className="ui move reveal content">
+					<div className="visible content">
+				        <div><span className="title">{this.props.title}</span></div>
+					    <div><span className="date">{this.props.uploadTime}</span></div>
+					    <div><span className="description"> {this.props.location}</span></div>
+					    <TagGroup data={this.props.tag}/>
+					</div>
+					<div className="hidden content">
+						<p className="description">{this.props.description}</p>
+					</div>
+				</div>
         );
 	}
 });
 
 var Post = React.createClass({
+
 	render: function() {
 
 		var id = 'post' + this.props.index;
@@ -116,13 +158,20 @@ var Post = React.createClass({
 		var	author_name = this.props.data.author_name;
 		var	profile_img_url = 'http://graph.facebook.com/' + this.props.data.author_id + '/picture?type=normal';
 		var	location = this.props.data.location;
-		var	google_map_lat = this.props.data.google_map_lat;
-		var	google_map_lng = this.props.data.google_map_lng;
+		var	google_map_lat = this.props.data.map_lat;
+		var	google_map_lng = this.props.data.map_lng;
 		var	occure_time = this.props.data.occure_time;
 		var	upload_time = this.props.data.upload_time;
 		var	is_closed = this.props.data.is_closed;
-		var	photo = this.props.data.photo;
-		var tag = this.props.data.tag;
+		var	photo = this.props.data.photos;
+		var tag = this.props.data.tag.slice(0,2);
+
+		if (tag[0].name === '')
+			tag = [];
+
+		// moment format
+		occure_time = moment(new Date(occure_time)).fromNow();
+		upload_time = moment(new Date(upload_time)).fromNow();
 
 		var themeColor = '#27BD8C'; 
 		if (type == 'found')
@@ -139,7 +188,7 @@ var Post = React.createClass({
 				<div id={id} className='post' style={inlineStyle}>
 	            	<img className='avatar' src={profile_img_url} />
 	            	<Carousel id={id} data={photo}/>
-	            	<Content type={type} title={title} location={location} uploadTime={upload_time} />
+	            	<Content type={type} title={title} location={location} uploadTime={upload_time} tag={tag} description={description}/>
 	         	</div> 
          	</div>
 		);

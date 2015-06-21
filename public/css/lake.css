@@ -98,6 +98,11 @@ body {
     opacity: 0.3;
 }
 
+#progress .bar {
+    width: 0%;
+    height: 18px;
+    background: green;
+}
 
 .postform .button-container {
     position: relative;
@@ -113,7 +118,7 @@ body {
 
 .post {
     width: 230px;
-    height: 360px;
+    height: 400px;
     margin-bottom: 50px;
     display: inline-block;
     border-radius: 3px 3px 3px 3px;
@@ -258,8 +263,16 @@ body {
 }
 
 .post .content {
-    height: 80px;
+    width: 100%;
+    height: 110px;
     background-color: #E0E0E0;
-    padding: 10px;
     border-radius: 0px 0px 3px 3px;
+}
+
+.post .visible.content {
+    padding: 10px;
+}
+
+.post .hidden.content {
+    padding: 10px;
 }
