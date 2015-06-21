@@ -272,6 +272,49 @@ var addPost = function(req, res, next) {
     }
 };
 
+var search = function(req, res, next) {
+    var option = {
+        type: (req.body.type == 'all' ? '' : req.body.type),
+        tag: req.body.tag || '',
+        title: req.body.title || '',
+        location: req.body.location || ''
+    }
 
+    var queryStatement;
+    var parameter;
+    if(option.type)
+    {
+        queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM post WHERE `tag` LIKE ? AND `title` LIKE ? AND `location` LIKE ? AND type = ?) result, user WHERE result.author_id = user.id;';
+        parameter  = new Array('%' + option.tag + '%', '%' + option.title + '%', '%' + option.location + '%', option.type);
+    } 
+    else 
+    {
+        queryStatement = 'SELECT result.*, user.name as author_name FROM (SELECT * FROM post WHERE `tag` LIKE ? AND `title` LIKE ? AND `location` LIKE ?) result, user WHERE result.author_id = user.id;';
+        parameter  = new Array('%' + option.tag + '%', '%' + option.title + '%', '%' + option.location + '%');   
+    }
+
+    database.query(queryStatement, parameter, function(err, row, fields) {
+        if (err) {
+            res.status(500).json({
+                status_messages: 'Internal error',
+                status_code: 500
+            });
+            console.log('Error: post search :' + err);
+        } else if (row.length > 0) {
+            res.status(200).json({
+                status_messages: 'post search API ! Access Success',
+                status_code: 200,
+                data: postHelper.timezoneConvert(row)
+            });
+        } else {
+            res.status(404).json({
+                status_messages: 'post search! Not found',
+                status_code: 404
+            })
+        }
+    });
+}
+
+module.exports.search = search;
 module.exports.getPost = getPost;
 module.exports.addPost = addPost;
