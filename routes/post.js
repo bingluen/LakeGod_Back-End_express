@@ -12,6 +12,7 @@ router.get('/getPost/title/:key/:type', post.getPost.ByTitle);
 router.get('/getPost/tag/:key/:type', post.getPost.ByTag);
 router.get('/getPost/user/:key/:type', post.getPost.ByUser);
 router.get('/getPost/location/:key/:type', post.getPost.ByLocation)
+router.post('/search', post.search)
 //router.get('/getPost/occure_time/:start-:end/:type', post.getPost.ByOccureTime);
 //router.get('/getPost/upload_time/:start-:end/:type', post.getPost.ByUploadTime);
 
